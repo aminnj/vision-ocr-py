@@ -10,10 +10,6 @@ import Quartz
 from Foundation import NSURL, NSRange
 import Vision
 
-import numpy as np
-
-from PIL import Image
-
 
 def _extract_text_from_image(img_path: str, origin: str, method: str) -> dict:
     output_entities = []
@@ -103,7 +99,7 @@ def _extract_text_from_image(img_path: str, origin: str, method: str) -> dict:
 
 
 def extract_text(
-    img: Union[str, bytes, np.ndarray],
+    img: Union[str, bytes, "np.ndarray", Literal["clipboard"]],
     origin: Literal["top", "bottom"] = "bottom",
     method: Literal["fast", "accurate"] = "accurate",
 ) -> dict:
@@ -120,8 +116,25 @@ def extract_text(
     # From bytes
     with open(fname, "rb") as fh:
         print(extract_text(fh.read()))
+
+    # From clipboard
+    print(extract_text("clipboard"))
     """
-    if isinstance(img, str):
+
+    if isinstance(img, str) and img == "clipboard":
+        import AppKit
+
+        pasteboard = AppKit.NSPasteboard.generalPasteboard()
+        data = pasteboard.dataForType_(AppKit.NSPasteboardTypePNG)
+        if data is None:
+            raise Exception("Clipboard content is not an image!")
+        with tempfile.NamedTemporaryFile(suffix=".png") as f:
+            img_path = f.name
+            f.write(data)
+            output = _extract_text_from_image(img_path, origin, method)
+        return output
+
+    elif isinstance(img, str):
         return _extract_text_from_image(img, origin, method)
 
     elif isinstance(img, bytes):
@@ -131,7 +144,9 @@ def extract_text(
             output = _extract_text_from_image(img_path, origin, method)
         return output
 
-    elif isinstance(img, np.ndarray):
+    elif "ndarray" in str(type(img)):
+        from PIL import Image
+
         with tempfile.NamedTemporaryFile(suffix=".png") as f:
             img_path = f.name
             Image.fromarray(img).save(img_path)
@@ -144,4 +159,6 @@ def extract_text(
 
 if __name__ == "__main__":
     import rich
-    rich.print(extract_text("assets/example1_input.png"))
+
+    # rich.print(extract_text("assets/example1_input.png"))
+    rich.print(extract_text("clipboard"))

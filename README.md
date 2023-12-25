@@ -11,16 +11,16 @@ Python to perform OCR.
 
 
 
-### "Installation"
+### Installation
 
 ```
-python3 -m venv myenv 
+python3 -m venv myenv
 source myenv/bin/activate
 pip install -U pip
 pip install -r requirements.txt
 ```
 
-The key requirement is `pyobjc-framework-Vision`.
+The key requirements are `pip install pyobjc-framework-Vision` and a Mac.
 
 ### Example
 
@@ -69,6 +69,9 @@ print(extract_text(array))
 # From bytes
 with open(fname, "rb") as fh:
     print(extract_text(fh.read()))
+
+# From clipboard
+print(extract_text("clipboard"))
 ```
 
 
