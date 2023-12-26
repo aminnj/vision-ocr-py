@@ -3,12 +3,16 @@
 import sys
 import os
 import tempfile
+import math
 
 from typing import Literal, Union
 
 import Quartz
 from Foundation import NSURL, NSRange
 import Vision
+
+
+from Quartz.CoreGraphics import CGRectApplyAffineTransform, CGAffineTransformMakeScale
 
 
 def _extract_text_from_image(img_path: str, origin: str, method: str) -> dict:
@@ -39,6 +43,21 @@ def _extract_text_from_image(img_path: str, origin: str, method: str) -> dict:
                 boundingBox, image_width, image_height
             )
 
+            def denormalize_point(point):
+                x, y = list(
+                    Vision.VNImagePointForNormalizedPoint(
+                        point, image_width, image_height
+                    )
+                )
+                if origin == "top":
+                    y = image_height - y
+                return round(x, 3), round(y, 3)
+
+            top_left = denormalize_point(boxObservation.topLeft())
+            top_right = denormalize_point(boxObservation.topRight())
+            bottom_left = denormalize_point(boxObservation.bottomLeft())
+            bottom_right = denormalize_point(boxObservation.bottomRight())
+
             # Image coordinates start with (0,0) at the bottom left
             xmin = round(Quartz.CGRectGetMinX(rect), 3)
             ymin = round(Quartz.CGRectGetMinY(rect), 3)
@@ -57,6 +76,17 @@ def _extract_text_from_image(img_path: str, origin: str, method: str) -> dict:
                     ymin=ymin,
                     xmax=xmax,
                     ymax=ymax,
+                    rotation_degrees=math.degrees(
+                        math.atan2(
+                            top_right[1] - top_left[1], top_right[0] - top_left[0]
+                        )
+                    ),
+                    polygon=dict(
+                        top_left=top_left,
+                        top_right=top_right,
+                        bottom_left=bottom_left,
+                        bottom_right=bottom_right,
+                    ),
                 )
             )
 

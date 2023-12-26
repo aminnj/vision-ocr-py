@@ -100,9 +100,26 @@ for entity in entities:
     ymin, ymax = entity["ymin"], entity["ymax"]
     text = entity["text"]
 
-    rect = plt.Rectangle(
-        (int(xmin), int(ymin)), xmax - xmin, ymax - ymin, ec="red", fc=(0, 0, 0)
-    )
+    print(entity)
+
+    if abs(entity["rotation_degrees"]) < 5:
+        rect = plt.Rectangle(
+            (int(xmin), int(ymin)), xmax - xmin, ymax - ymin, ec="red", fc=(0, 0, 0, 0.9)
+        )
+        ax.add_patch(rect)
+    else:
+        import matplotlib.patches as patches
+
+        # Assuming you have these coordinates for the corners
+        # Replace these with your actual values
+        topLeft = entity["polygon"]["top_left"]
+        topRight = entity["polygon"]["top_right"]
+        bottomRight = entity["polygon"]["bottom_right"]
+        bottomLeft = entity["polygon"]["bottom_left"]
+
+        # Create a polygon patch with the coordinates of the rotated rectangle
+        polygon = patches.Polygon([topLeft, topRight, bottomRight, bottomLeft], closed=True, fill=False, edgecolor='red')
+        ax.add_patch(polygon)
 
     ax.annotate(
         " " + text,
@@ -112,7 +129,6 @@ for entity in entities:
         ha="left",
         va="center",
     )
-    ax.add_patch(rect)
 
 fig.set_tight_layout(True)
 fig.savefig("assets/example1_annotated.png")
