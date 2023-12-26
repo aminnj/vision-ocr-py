@@ -20,7 +20,8 @@ pip install -U pip
 pip install -r requirements.txt
 ```
 
-The key requirements are `pip install pyobjc-framework-Vision` and a Mac.
+> [!IMPORTANT]
+> The key requirements are `pip install pyobjc-framework-Vision` and a Mac.
 
 ### Example
 
