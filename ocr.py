@@ -11,7 +11,6 @@ import Quartz
 from Foundation import NSURL, NSRange
 import Vision
 
-
 from Quartz.CoreGraphics import CGRectApplyAffineTransform, CGAffineTransformMakeScale
 
 
@@ -39,9 +38,6 @@ def _extract_text_from_image(img_path: str, origin: str, method: str) -> dict:
                 input_image.extent().size.width,
                 input_image.extent().size.height,
             )
-            rect = Vision.VNImageRectForNormalizedRect(
-                boundingBox, image_width, image_height
-            )
 
             def denormalize_point(point):
                 x, y = list(
@@ -59,10 +55,10 @@ def _extract_text_from_image(img_path: str, origin: str, method: str) -> dict:
             bottom_right = denormalize_point(boxObservation.bottomRight())
 
             # Image coordinates start with (0,0) at the bottom left
-            xmin = round(Quartz.CGRectGetMinX(rect), 3)
-            ymin = round(Quartz.CGRectGetMinY(rect), 3)
-            xmax = round(Quartz.CGRectGetMaxX(rect), 3)
-            ymax = round(Quartz.CGRectGetMaxY(rect), 3)
+            xmin = round(min(top_left[0], bottom_left[0]), 3)
+            ymin = round(min(bottom_left[1], bottom_right[1]), 3)
+            xmax = round(max(top_right[0], bottom_right[0]), 3)
+            ymax = round(max(top_left[1], top_right[1]), 3)
 
             # To anchor (0,0) at top left (eg for matplotlib)
             if origin == "top":
