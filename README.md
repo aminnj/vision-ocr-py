@@ -141,7 +141,7 @@ fig.savefig("assets/example1_annotated.png")
 ### CLI
 ```bash
 function vcopy() {
-    python -c 'import ocr, json; print(json.dumps(ocr.extract_text("clipboard")))' | jq -r '.entities[].text'
+    python -c 'import ocr, json; print(json.dumps(ocr.extract_text("clipboard")))' | jq -r '.entities[].text' | tee >(pbcopy)
 }
 
 
