@@ -34,10 +34,8 @@ def _extract_text_from_image(img_path: str, origin: str, method: str) -> dict:
             boundingBox = boxObservation.boundingBox()
 
             # Convert the rectangle from normalized coordinates to image coordinates.
-            image_width, image_height = (
-                input_image.extent().size.width,
-                input_image.extent().size.height,
-            )
+            image_width = input_image.extent().size.width
+            image_height = input_image.extent().size.height
 
             def denormalize_point(point):
                 x, y = list(
